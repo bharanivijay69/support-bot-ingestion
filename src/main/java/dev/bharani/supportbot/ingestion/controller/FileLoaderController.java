@@ -1,9 +1,12 @@
 package dev.bharani.supportbot.ingestion.controller;
 
 import dev.bharani.supportbot.ingestion.loader.DataLoader;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -35,5 +38,29 @@ public class FileLoaderController {
             return Map.of("status", "error", "message", e.getMessage());
         }
     }
+
+    /**
+     * Handles POST requests to /load-file endpoint.
+     * Accepts a single file upload and triggers file processing.
+     * Uses DataLoader to load the file into a vector database.
+     * Returns a status and message indicating success or error.
+     *
+     * @param file the uploaded file
+     * @return a map with status and message
+     */
+    @PostMapping("/load-file")
+    public Map<String, String> loadFile(@RequestParam("file") MultipartFile file) {
+        try {
+            // Convert MultipartFile to Resource
+            Resource resource = new InputStreamResource(file.getInputStream());
+
+            dataLoader.addResource(resource);
+
+            return Map.of("status", "success", "message", "File loaded successfully");
+        } catch (Exception e) {
+            return Map.of("status", "error", "message", e.getMessage());
+        }
+    }
+
 
 }
